@@ -2,14 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { AuthModule } from './auth/auth.module';
-import { UsersModule } from './users/users.module';
-import { RolesModule } from './roles/roles.module';
-import { PatientsModule } from './patients/patients.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { AuthModule } from './auth/auth.module';
 import { AvailabilityModule } from './availability/availability.module';
-import { LogsModule } from './logs/logs.module';
 import { DatabaseModule } from './database/database.module';
+import { PatientsModule } from './patients/patients.module';
+import { RolesModule } from './roles/roles.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -39,7 +38,6 @@ import { DatabaseModule } from './database/database.module';
     PatientsModule,
     AppointmentsModule,
     AvailabilityModule,
-    LogsModule,
     DatabaseModule,
   ],
 })
