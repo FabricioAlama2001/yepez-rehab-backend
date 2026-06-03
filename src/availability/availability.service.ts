@@ -10,7 +10,9 @@ export class AvailabilityService {
     const day = date.getDay();
 
     if (day === 0 || day === 6) {
-      throw new BadRequestException('Solo se permiten citas de lunes a viernes');
+      throw new BadRequestException(
+        'Solo se permiten citas de lunes a viernes',
+      );
     }
   }
 

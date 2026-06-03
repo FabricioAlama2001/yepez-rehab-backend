@@ -2,13 +2,13 @@ import {
   BadRequestException,
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AvailabilityService } from '../availability/availability.service';
 import { AppointmentStatus } from '../common/enums/appointment-status.enum';
-import { AppLoggerService } from '../logs/app-logger/app-logger.service';
 import { Patient } from '../patients/entities/patient.entity';
 import { User } from '../users/entities/user.entity';
 import { CancelAppointmentDto } from './dto/cancel-appointment.dto';
@@ -18,6 +18,7 @@ import { Appointment } from './entities/appointment.entity';
 
 @Injectable()
 export class AppointmentsService {
+  private readonly logger = new Logger(AppointmentsService.name);
   constructor(
     @InjectRepository(Appointment)
     private readonly appointmentRepository: Repository<Appointment>,
@@ -29,7 +30,6 @@ export class AppointmentsService {
     private readonly userRepository: Repository<User>,
 
     private readonly availabilityService: AvailabilityService,
-    private readonly appLogger: AppLoggerService,
   ) {}
 
   async create(createAppointmentDto: CreateAppointmentDto) {
@@ -78,7 +78,7 @@ export class AppointmentsService {
 
     const savedAppointment = await this.appointmentRepository.save(appointment);
 
-    this.appLogger.log(
+    this.logger.log(
       `Cita creada: ${savedAppointment.appointmentDate} ${savedAppointment.startTime}`,
       'AppointmentsService',
     );
@@ -124,7 +124,7 @@ export class AppointmentsService {
     const cancelledAppointment =
       await this.appointmentRepository.save(appointment);
 
-    this.appLogger.warn(
+    this.logger.warn(
       `Cita cancelada: ${cancelledAppointment.id}`,
       'AppointmentsService',
     );
@@ -136,12 +136,12 @@ export class AppointmentsService {
     const appointment = await this.findOne(id);
 
     if (appointment.status === AppointmentStatus.CANCELLED) {
-      throw new BadRequestException('No se puede reprogramar una cita cancelada');
+      throw new BadRequestException(
+        'No se puede reprogramar una cita cancelada',
+      );
     }
 
-    this.availabilityService.validateBusinessDay(
-      rescheduleDto.appointmentDate,
-    );
+    this.availabilityService.validateBusinessDay(rescheduleDto.appointmentDate);
     this.availabilityService.validateBusinessHour(rescheduleDto.startTime);
 
     const physiotherapist = await this.userRepository.findOne({
@@ -170,7 +170,7 @@ export class AppointmentsService {
     const rescheduledAppointment =
       await this.appointmentRepository.save(appointment);
 
-    this.appLogger.log(
+    this.logger.log(
       `Cita reprogramada: ${rescheduledAppointment.id}`,
       'AppointmentsService',
     );
@@ -190,7 +190,7 @@ export class AppointmentsService {
     const attendedAppointment =
       await this.appointmentRepository.save(appointment);
 
-    this.appLogger.log(
+    this.logger.log(
       `Cita marcada como atendida: ${attendedAppointment.id}`,
       'AppointmentsService',
     );
@@ -225,7 +225,7 @@ export class AppointmentsService {
     const existingAppointment = await query.getOne();
 
     if (existingAppointment) {
-      this.appLogger.warn(
+      this.logger.warn(
         `Intento de cita duplicada: ${appointmentDate} ${startTime}`,
         'AppointmentsService',
       );

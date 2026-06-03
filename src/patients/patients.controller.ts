@@ -34,10 +34,7 @@ export class PatientsController {
     @Param('id') id: string,
     @Body() createInitialRecordDto: CreateInitialRecordDto,
   ) {
-    return this.patientsService.createInitialRecord(
-      id,
-      createInitialRecordDto,
-    );
+    return this.patientsService.createInitialRecord(id, createInitialRecordDto);
   }
 
   @Get(':id/initial-record')
@@ -50,10 +47,7 @@ export class PatientsController {
     @Param('id') id: string,
     @Body() updateInitialRecordDto: UpdateInitialRecordDto,
   ) {
-    return this.patientsService.updateInitialRecord(
-      id,
-      updateInitialRecordDto,
-    );
+    return this.patientsService.updateInitialRecord(id, updateInitialRecordDto);
   }
 
   @Get(':id')

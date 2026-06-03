@@ -1,11 +1,11 @@
 import {
   ConflictException,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { AppLoggerService } from '../logs/app-logger/app-logger.service';
 import { CreateInitialRecordDto } from './dto/create-initial-record.dto';
 import { CreatePatientDto } from './dto/create-patient.dto';
 import { UpdateInitialRecordDto } from './dto/update-initial-record.dto';
@@ -15,14 +15,14 @@ import { Patient } from './entities/patient.entity';
 
 @Injectable()
 export class PatientsService {
+  private readonly logger = new Logger(PatientsService.name);
+
   constructor(
     @InjectRepository(Patient)
     private readonly patientRepository: Repository<Patient>,
 
     @InjectRepository(InitialRecord)
     private readonly initialRecordRepository: Repository<InitialRecord>,
-
-    private readonly appLogger: AppLoggerService,
   ) {}
 
   async create(createPatientDto: CreatePatientDto) {
@@ -37,10 +37,7 @@ export class PatientsService {
     const patient = this.patientRepository.create(createPatientDto);
     const savedPatient = await this.patientRepository.save(patient);
 
-    this.appLogger.log(
-      `Paciente creado: ${savedPatient.identification}`,
-      'PatientsService',
-    );
+    this.logger.log(`Paciente creado: ${savedPatient.identification}`);
 
     return savedPatient;
   }
@@ -70,10 +67,7 @@ export class PatientsService {
 
     const updatedPatient = await this.patientRepository.save(patient);
 
-    this.appLogger.log(
-      `Paciente actualizado: ${updatedPatient.identification}`,
-      'PatientsService',
-    );
+    this.logger.log(`Paciente actualizado: ${updatedPatient.identification}`);
 
     return updatedPatient;
   }
@@ -99,9 +93,8 @@ export class PatientsService {
 
     const savedRecord = await this.initialRecordRepository.save(initialRecord);
 
-    this.appLogger.log(
+    this.logger.log(
       `Ficha inicial creada para paciente: ${patient.identification}`,
-      'PatientsService',
     );
 
     return savedRecord;
@@ -132,10 +125,7 @@ export class PatientsService {
     const updatedRecord =
       await this.initialRecordRepository.save(initialRecord);
 
-    this.appLogger.log(
-      `Ficha inicial actualizada para paciente: ${patientId}`,
-      'PatientsService',
-    );
+    this.logger.log(`Ficha inicial actualizada para paciente: ${patientId}`);
 
     return updatedRecord;
   }
